@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Connect to EC2 and run commands
 
 on:
   push:
@@ -6,24 +6,28 @@ on:
       - main
 
 jobs:
-  deploy:
+  ssh-ec2:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: SSH into EC2 and deploy
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Connect to EC2 and run commands
+        uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ec2-user
-          key_path: private_key.pem
-          port: 22
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "Connected to EC2 instance!"
             uname -a
             docker ps
-            cd assessment || git clone https://github.com/boymeetsblockchain/assessment.git && cd assessment
-            git pull origin main
-            sudo docker compose up --build -d
+            cd assessment 
+            sudo docker compose down
+            cd ..
+            sudo rm -r assessment
+            git clone https://github.com/boymeetsblockchain/assessment
+            cp .env assessment
+            cd assessment
+            sudo docker compose up --build -d
