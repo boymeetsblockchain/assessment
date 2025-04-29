@@ -1,0 +1,28 @@
+name: Connect to EC2 and run commands
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ssh-ec2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Connect to EC2 and run commands
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Connected to EC2 instance!"
+            uname -a
+            docker ps
+            cd assessment
+            git pull https://github.com/boymeetsblockchain/assessment
+            sudo docker compose up --build -d
