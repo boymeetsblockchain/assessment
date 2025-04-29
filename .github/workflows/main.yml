@@ -13,12 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: SSH and deploy
+      - name: SSH into EC2 and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_PUBLIC_IP }}
           username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: private_key.pem
           port: 22
           script: |
             echo "Connected to EC2 instance!"
